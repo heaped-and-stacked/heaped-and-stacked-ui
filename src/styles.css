@@ -1,0 +1,224 @@
+@import "tailwindcss";
+
+/*
+ * Heaped & Stacked: a gym with an editor's calm.
+ * Dark by default (a calm, low-glare room to think in), with a light "paper" theme.
+ * Cards and buttons keep firm borders and offset shadows, with one corner radius everywhere
+ * (--corner) so edges read as finished rather than sharp; form fields are softer (thin
+ * border, focus ring), since they're where people spend their time typing.
+ *
+ * Colours are Tailwind tokens (bg-paper, text-ink, border-ink, bg-pixel, ...). Their
+ * values are CSS variables, set per theme below: "paper" is always the page background
+ * and "ink" the main text, so the same classes work in both themes. The theme is the
+ * `dark` class on <html> (set before first paint by index.html, switched in the top bar).
+ * Fonts: JetBrains Mono throughout, the font of IntelliJ: font-body for text, font-display
+ * (bold, uppercase, spaced) for headings, labels and buttons. The cartoon cast keeps the gym feel.
+ *
+ * Colour roles: no pure black or white (less glare over long sessions). Ink blue for what's
+ * selected or clickable (the current page, the chosen option, links, focus). A muted sage
+ * green for progress, success and the main action (picked muscles, START TRAINING,
+ * verified). Amber for waiting states. A soft red only for real problems.
+ */
+
+/* short: windows up to 760px tall (laptop screens), where one-screen pages scale down. */
+@custom-variant short (@media (max-height: 760px));
+
+/* dark: the dark theme, chosen with the `dark` class on <html>. */
+@custom-variant dark (&:where(.dark, .dark *));
+
+:root {
+  color-scheme: light;
+  --corner: 6px; /* the one corner radius: cards, buttons, chips, badges, fields */
+  /* Light: neutral cool greys in the spirit of Stack Overflow's light theme, a notch dimmer: a
+     grey page, panels only a little lighter, thin light frames and soft shadows instead of dark
+     outlines. Every text colour is at least 4.5:1 on page, card and muted. */
+  --paper: #e2e5e8; /* page background: soft grey */
+  --card: #edf0f2;
+  --ink: #232629; /* main text */
+  --muted: #d8dce0;
+  --faded: #525961; /* secondary text */
+  --blue: #0b5aa2; /* selected and clickable */
+  --blue-tint: #d5e2ef; /* behind what's selected */
+  --pixel: #24653d; /* progress, success, the main action (green; also as a button) */
+  --amber: #f0a24a; /* secondary accent: in review, DRAFT */
+  --amber-ink: #844b0a; /* amber as text (plain amber is too light to read) */
+  --on-amber: #23262e; /* text on amber chips and badges: dark in both themes */
+  --blush: #e9a3b2;
+  --danger: #a32e28; /* also as a button */
+  --line: #b3b9c0; /* the frames of cards, buttons and chips (border-line): light, not outlines */
+  --shadow: #c8cdd3; /* the offset shadows: soft */
+  /* Code blocks look like IntelliJ's Darcula editor, in both themes. */
+  --code: #2b2b2b;
+  --code-ink: #a9b7c6;
+  --code-keyword: #cc7832;
+  --code-string: #6a8759;
+  --code-number: #6897bb;
+  --code-comment: #808080;
+  --code-annotation: #bbb529;
+  --code-method: #ffc66d;
+}
+
+:root.dark {
+  color-scheme: dark;
+  --paper: #15171c; /* blue-grey charcoal, not black */
+  --card: #1d2027;
+  --ink: #e6e1d6; /* warm off-white text */
+  --muted: #2a2e37;
+  --faded: #9aa0aa;
+  --blue: #7fa9e3; /* lighter ink blue, AA as text on the dark page */
+  --blue-tint: #1f2a3b;
+  --pixel: #5fb382; /* lighter sage, AA as text on the dark page */
+  --amber: #dba24c;
+  --amber-ink: #dba24c; /* on the dark page, amber reads well as text */
+  --on-amber: #23262e;
+  --blush: #d68fa0;
+  --danger: #e06c63;
+  --line: #3b414d; /* dimmer than the text, so frames don't glare on the dark page */
+  --shadow: #07080a;
+}
+
+@theme inline {
+  --color-paper: var(--paper);
+  --color-card: var(--card);
+  --color-ink: var(--ink);
+  --color-muted: var(--muted);
+  --color-faded: var(--faded);
+  --color-blue: var(--blue);
+  --color-blue-tint: var(--blue-tint);
+  --color-pixel: var(--pixel);
+  --color-amber: var(--amber);
+  --color-amber-ink: var(--amber-ink);
+  --color-on-amber: var(--on-amber);
+  --color-blush: var(--blush);
+  --color-danger: var(--danger);
+  --color-line: var(--line);
+  --color-shadow: var(--shadow);
+  --color-code: var(--code);
+  --color-code-ink: var(--code-ink);
+  --color-code-keyword: var(--code-keyword);
+  --color-code-string: var(--code-string);
+  --color-code-number: var(--code-number);
+  --color-code-comment: var(--code-comment);
+  --color-code-annotation: var(--code-annotation);
+  --color-code-method: var(--code-method);
+}
+
+@theme {
+  --font-display: "JetBrains Mono", ui-monospace, monospace;
+  --font-body: "JetBrains Mono", ui-monospace, monospace;
+}
+
+/* While the theme switches, nothing animates: colours change at once instead of fading through grey. */
+.theme-switching,
+.theme-switching *,
+.theme-switching *::before,
+.theme-switching *::after {
+  transition: none !important;
+}
+
+@layer base {
+  /* One small corner radius everywhere, so every edge looks alike. Pixel art stays square. */
+  * {
+    border-radius: var(--corner);
+  }
+  img,
+  svg,
+  canvas {
+    border-radius: 0;
+  }
+
+  /* Space for the scrollbar is always kept, so the page doesn't shift sideways when it appears. */
+  html {
+    scrollbar-gutter: stable;
+  }
+
+  body {
+    background-color: var(--color-paper);
+    color: var(--color-ink);
+    font-family: var(--font-body);
+    /* JetBrains Mono's code ligatures would draw ++, ->, != as one symbol: off, so answers and
+       code show every character as typed. */
+    font-variant-ligatures: none;
+    font-feature-settings:
+      "liga" 0,
+      "calt" 0;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  ::selection {
+    background: var(--color-pixel);
+    color: var(--color-paper);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-blue);
+    outline-offset: 2px;
+  }
+
+  /* Headings, labels and buttons: bold and spaced. Sizes across the app were set for a large
+     pixel font; font-size-adjust keeps them the same visual size in JetBrains Mono. */
+  .font-display {
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    font-size-adjust: 0.62;
+  }
+}
+
+/* Hard pixel offset shadows */
+@utility pixel-shadow {
+  box-shadow: 4px 4px 0 0 var(--shadow);
+}
+
+@utility pixel-shadow-sm {
+  box-shadow: 2px 2px 0 0 var(--shadow);
+}
+
+/*
+ * The one page background, the same on every page: the page colour with a faint, wide glow from
+ * the top, like soft light in a quiet room. Fixed, so it doesn't move or stretch while scrolling.
+ */
+@utility bg-room {
+  background-color: var(--paper);
+  background-image:
+    radial-gradient(
+      120% 60% at 50% -10%,
+      color-mix(in srgb, var(--ink) 6%, transparent),
+      transparent 70%
+    ),
+    radial-gradient(
+      60% 40% at 85% 0%,
+      color-mix(in srgb, var(--pixel) 5%, transparent),
+      transparent 70%
+    );
+  background-attachment: fixed;
+}
+
+/* Crisp pixel rendering, for GitHub avatars (small images shown larger) */
+@utility pixelated {
+  image-rendering: pixelated;
+}
+
+/* Blinking terminal cursor */
+@keyframes pixel-blink {
+  0%,
+  49% {
+    opacity: 1;
+  }
+  50%,
+  100% {
+    opacity: 0;
+  }
+}
+
+@utility animate-pixel-blink {
+  animation: pixel-blink 1.1s steps(1) infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}
