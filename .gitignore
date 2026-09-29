@@ -1,0 +1,12 @@
+node_modules
+dist
+*.local
+*.log
+
+.idea
+.vscode/*
+!.vscode/extensions.json
+.DS_Store
+
+# TypeScript build cache
+*.tsbuildinfo
