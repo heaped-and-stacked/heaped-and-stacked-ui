@@ -1,0 +1,40 @@
+# Serves the built single-page app. A template: when the container starts, nginx's image
+# replaces ${API_ORIGIN} with the API's address (e.g. https://api.example.com, or
+# http://localhost:8080 locally); nginx's own variables ($uri) are left alone.
+server {
+    listen 80;
+    root /usr/share/nginx/html;
+    server_tokens off;
+
+    gzip on;
+    gzip_types text/css application/javascript application/json image/svg+xml;
+
+    # Security headers, for every response. They're set here only: the locations below use
+    # `expires` (not add_header) for caching, so these are inherited.
+    #
+    # Content-Security-Policy: what the page may load and run.
+    #   script-src  the bundle, plus the inline theme script in index.html by its hash. If that
+    #               script changes, update the hash: npm run build, then
+    #               perl -0ne 'print $1 if /<script>(.*?)<\/script>/s' dist/index.html | openssl dgst -sha256 -binary | base64
+    #   style-src   the bundle; inline styles for React's style={...}
+    #   font-src    the bundle's own font files (no third party: fonts ship with the app)
+    #   img-src     the bundle, data: URIs and GitHub avatars
+    #   connect-src the API
+    add_header Content-Security-Policy "default-src 'self'; script-src 'self' 'sha256-QL//1K3GkfqVslzgRaK9KFMRbSTnsV/lErQiJhdmlm0='; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data: https://avatars.githubusercontent.com; connect-src 'self' ${API_ORIGIN}; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; object-src 'none'" always;
+    add_header X-Content-Type-Options "nosniff" always;
+    add_header Referrer-Policy "strict-origin-when-cross-origin" always;
+    add_header Permissions-Policy "camera=(), microphone=(), geolocation=(), payment=()" always;
+    # Browsers only honour HSTS over https, so it's harmless on http://localhost.
+    add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" always;
+
+    # Built assets have a content hash in their name, so they can be cached for good.
+    location /assets/ {
+        expires max;
+    }
+
+    # Every other path is a page of the app: let the router in index.html handle it.
+    location / {
+        expires -1;
+        try_files $uri /index.html;
+    }
+}

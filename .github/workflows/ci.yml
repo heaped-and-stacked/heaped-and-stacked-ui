@@ -1,0 +1,84 @@
+# Type-checks, checks formatting and builds the UI on each push and pull request.
+#
+# On pushes to master and on version tags (v1.0.0), once the checks pass, the Docker image is
+# published to GitHub Container Registry as ghcr.io/<owner>/heaped-and-stacked-ui, tagged:
+#   sha-<commit>   every publish: what a deploy points at, and what a rollback goes back to
+#   latest         the newest commit on master
+#   1.0.0          a version tag
+# The production addresses are baked into the image, so publishing needs two repository variables
+# (Settings > Secrets and variables > Actions > Variables): VITE_API_URL (https://api.<domain>) and
+# VITE_SITE_URL (https://<domain>). Until both are set, the publish job is skipped.
+name: CI
+
+on:
+  push:
+    branches: [master]
+    tags: ["v*"]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: npm
+
+      - run: npm ci
+      - run: npm run typecheck
+      - name: Formatting
+        run: npx prettier --check src
+      - run: npm run build
+
+      - name: Known vulnerabilities in dependencies (high and above)
+        run: npm audit --omit=dev --audit-level=high
+
+      - name: Build the Docker image (no push)
+        if: github.event_name == 'pull_request'
+        run: docker build -t heaped-and-stacked-ui:ci .
+
+  publish:
+    if: github.event_name == 'push' && vars.VITE_API_URL != '' && vars.VITE_SITE_URL != ''
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: docker/setup-buildx-action@v3
+
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Image tags
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ghcr.io/${{ github.repository }}
+          tags: |
+            type=sha,prefix=sha-,format=short
+            type=raw,value=latest,enable={{is_default_branch}}
+            type=semver,pattern={{version}}
+
+      - uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          build-args: |
+            VITE_API_URL=${{ vars.VITE_API_URL }}
+            VITE_SITE_URL=${{ vars.VITE_SITE_URL }}

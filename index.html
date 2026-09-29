@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <!-- Pages set their own title (router.tsx); this one is for crawlers and the first paint. -->
+    <title>Heaped &amp; Stacked: a gym for your brain</title>
+    <meta
+      name="description"
+      content="A gym for your brain. Pick a muscle, get an exercise and start training."
+    />
+    <meta name="theme-color" content="#15171c" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <!-- Link previews (chats, social media). Crawlers don't run the app, so these are static. The
+         image needs a full address: %VITE_SITE_URL% is the site's own, set at build time. -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Heaped &amp; Stacked" />
+    <meta property="og:title" content="Heaped &amp; Stacked: a gym for your brain" />
+    <meta
+      property="og:description"
+      content="Pick a muscle, take a rep: open questions on Java, Spring and system design. Write your answer, then compare it with a model answer."
+    />
+    <meta property="og:url" content="%VITE_SITE_URL%/" />
+    <meta property="og:image" content="%VITE_SITE_URL%/og-image.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta
+      property="og:image:alt"
+      content="Heaped &amp; Stacked: the coffee mug spotting the brain on the bench press. Pick a muscle, take a rep."
+    />
+    <meta name="twitter:card" content="summary_large_image" />
+    <!-- The theme is set before the first paint, so a dark page never flashes white:
+         dark unless the visitor switched to light (a convenience kept in localStorage). -->
+    <script>
+      try {
+        if (localStorage.getItem("theme") !== "light") document.documentElement.classList.add("dark");
+      } catch {
+        document.documentElement.classList.add("dark");
+      }
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
