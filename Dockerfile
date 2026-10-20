@@ -2,7 +2,7 @@
 # For day-to-day UI work use `npm run dev` (hot reload) instead.
 
 # ---- build ---------------------------------------------------------------
-FROM node:24-alpine AS build
+FROM node:26-alpine AS build
 WORKDIR /app
 
 # Dependencies first, so they're cached until the lock file changes.
