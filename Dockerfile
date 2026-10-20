@@ -19,7 +19,7 @@ ENV VITE_SITE_URL=$VITE_SITE_URL
 RUN npm run build
 
 # ---- serve ---------------------------------------------------------------
-FROM nginx:1.29-alpine
+FROM nginx:1.31-alpine
 # The image fills in ${API_ORIGIN} when the container starts (templates/*.template -> conf.d/*);
 # it's the same API address the bundle was built with, so the Content-Security-Policy matches.
 ARG VITE_API_URL=http://localhost:8080
