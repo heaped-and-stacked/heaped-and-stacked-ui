@@ -48,7 +48,7 @@ export function Button({
 
 export function Card({ children, className = "" }: { children: ReactNode; className?: string }) {
   return (
-    <div className={`pixel-shadow border-2 border-line bg-card p-6 ${className}`}>{children}</div>
+    <div className={`pixel-shadow border-2 border-line bg-card p-6 max-sm:p-4 ${className}`}>{children}</div>
   );
 }
 

@@ -22,7 +22,7 @@ export function Layout() {
       <TopBar />
       <WorkoutBar />
       {/* flex-1 pushes the footer to the bottom of the window on short pages */}
-      <main className="relative mx-auto flex w-full max-w-[96rem] flex-1 flex-col px-6 pb-10 pt-8 short:pb-6 short:pt-6">
+      <main className="relative mx-auto flex w-full max-w-[96rem] flex-1 flex-col px-6 pb-10 pt-8 short:pb-6 short:pt-6 max-sm:px-4 max-sm:pt-5">
         <Outlet />
       </main>
       <Footer />
@@ -43,7 +43,7 @@ const footerLinks = [
 function Footer() {
   return (
     <footer className="relative border-t-2 border-ink/15 bg-paper/80">
-      <div className="mx-auto grid w-full max-w-[96rem] gap-3 px-6 py-4 text-[11px] font-medium text-faded md:grid-cols-[1fr_auto] md:items-center md:gap-x-10">
+      <div className="mx-auto grid w-full max-w-[96rem] gap-3 px-6 py-4 text-[11px] max-sm:px-4 font-medium text-faded md:grid-cols-[1fr_auto] md:items-center md:gap-x-10">
         <p className="leading-relaxed">
           <span className="font-semibold text-ink/70">Coach's note:</span> some exercises are
           written with the help of AI or added by members, and not all of them are verified yet.
@@ -88,106 +88,111 @@ function TopBar() {
   const { data: user, isPending } = useCurrentUser();
 
   return (
-    <header className="relative mx-auto w-full max-w-[96rem] px-6 py-5">
+    <header className="relative mx-auto w-full max-w-[96rem] px-6 py-5 max-sm:px-4 max-sm:py-3">
       <nav className="flex flex-wrap items-center justify-between gap-x-4 gap-y-3">
         <Link to="/" className="flex items-center gap-3" aria-label="Heaped & Stacked, home">
-          <Logo className="size-10" />
+          <Logo className="size-10 max-sm:size-8" />
           <span className="hidden md:block">
             <span className="block font-display text-xs leading-none">HEAPED &amp; STACKED</span>
             <span className="mt-1 block text-xs font-medium text-faded">// brain_gym</span>
           </span>
         </Link>
 
-        {/* On phones the buttons wrap onto a second row rather than run off the screen. */}
-        <div className="flex flex-wrap items-center justify-end gap-2 sm:gap-3">
-          <ReviewerSwitch />
-          <ThemeSwitch />
-          {/* Support, next to the theme switch and like it: in view on every page, never loud. */}
-          {site.coffeeUrl && (
-            <a
-              href={site.coffeeUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label="Buy me a coffee (opens Buy Me a Coffee)"
-              title="Buy me a coffee: it keeps the servers running"
-              className="pixel-shadow-sm grid h-[34px] w-10 place-items-center border-2 border-line bg-card text-amber-ink transition hover:-translate-y-0.5"
-            >
-              {/* A pixel cup, drawn like the logo: steam, rim, body, handle, saucer. */}
-              <svg viewBox="0 0 14 14" className="size-5" fill="currentColor" aria-hidden>
-                <rect x="4" y="0" width="1" height="2" />
-                <rect x="7" y="1" width="1" height="2" />
-                <rect x="2" y="4" width="8" height="1" />
-                <rect x="2" y="5" width="1" height="5" />
-                <rect x="9" y="5" width="1" height="5" />
-                <rect x="3" y="5" width="6" height="2" opacity="0.45" />
-                <rect x="3" y="10" width="6" height="1" />
-                <rect x="10" y="6" width="2" height="1" />
-                <rect x="11" y="7" width="1" height="2" />
-                <rect x="10" y="9" width="2" height="1" />
-                <rect x="1" y="12" width="11" height="1" />
-              </svg>
-            </a>
-          )}
-          {user ? (
-            <Link
-              to="/locker-room"
-              className="flex items-center gap-2 border-2 border-transparent px-1 py-1 text-xs font-semibold transition hover:border-line data-[status=active]:border-line"
-              title="Locker room"
-            >
-              <Avatar url={user.avatarUrl} name={user.displayName} />
-              {/* The role above the name, like a title on a membership card. */}
-              <span className="hidden max-w-32 lg:block">
-                <span className="block font-display text-[9px] leading-none text-faded">
-                  {roleLabels[user.role]}
-                </span>
-                <span className="mt-1 block truncate">{user.displayName ?? "athlete"}</span>
-              </span>
-            </Link>
-          ) : (
-            !isPending && (
+        {/* On phones: the switches next to the logo, the pages in a row of their own below, each
+            an equal share of the width. From sm up the two groups are one row (sm:contents). */}
+        <div className="flex flex-wrap items-center justify-end gap-2 max-sm:contents sm:gap-3">
+          <div className="flex items-center gap-2 sm:contents">
+            <ReviewerSwitch />
+            <ThemeSwitch />
+            {/* Support, next to the theme switch and like it: in view on every page, never loud. */}
+            {site.coffeeUrl && (
               <a
-                href={SIGN_IN_URL}
-                onClick={(event) => {
-                  event.preventDefault();
-                  signInHere(); // back to this page afterwards, not the home page
-                }}
-                className={`${navButtonClass} bg-pixel! text-paper`}
+                href={site.coffeeUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Buy me a coffee (opens Buy Me a Coffee)"
+                title="Buy me a coffee: it keeps the servers running"
+                className="pixel-shadow-sm grid h-[34px] w-10 place-items-center border-2 border-line bg-card text-amber-ink transition hover:-translate-y-0.5"
               >
-                <span className="sm:hidden">SIGN IN</span>
-                <span className="hidden sm:inline">SIGN IN WITH GITHUB</span>
+                {/* A pixel cup, drawn like the logo: steam, rim, body, handle, saucer. */}
+                <svg viewBox="0 0 14 14" className="size-5" fill="currentColor" aria-hidden>
+                  <rect x="4" y="0" width="1" height="2" />
+                  <rect x="7" y="1" width="1" height="2" />
+                  <rect x="2" y="4" width="8" height="1" />
+                  <rect x="2" y="5" width="1" height="5" />
+                  <rect x="9" y="5" width="1" height="5" />
+                  <rect x="3" y="5" width="6" height="2" opacity="0.45" />
+                  <rect x="3" y="10" width="6" height="1" />
+                  <rect x="10" y="6" width="2" height="1" />
+                  <rect x="11" y="7" width="1" height="2" />
+                  <rect x="10" y="9" width="2" height="1" />
+                  <rect x="1" y="12" width="11" height="1" />
+                </svg>
               </a>
-            )
-          )}
+            )}
+            {user ? (
+              <Link
+                to="/locker-room"
+                className="flex items-center gap-2 border-2 border-transparent px-1 py-1 text-xs font-semibold transition hover:border-line data-[status=active]:border-line"
+                title="Locker room"
+              >
+                <Avatar url={user.avatarUrl} name={user.displayName} />
+                {/* The role above the name, like a title on a membership card. */}
+                <span className="hidden max-w-32 lg:block">
+                  <span className="block font-display text-[9px] leading-none text-faded">
+                    {roleLabels[user.role]}
+                  </span>
+                  <span className="mt-1 block truncate">{user.displayName ?? "athlete"}</span>
+                </span>
+              </Link>
+            ) : (
+              !isPending && (
+                <a
+                  href={SIGN_IN_URL}
+                  onClick={(event) => {
+                    event.preventDefault();
+                    signInHere(); // back to this page afterwards, not the home page
+                  }}
+                  className={`${navButtonClass} bg-pixel! text-paper`}
+                >
+                  <span className="sm:hidden">SIGN IN</span>
+                  <span className="hidden sm:inline">SIGN IN WITH GITHUB</span>
+                </a>
+              )
+            )}
+          </div>
 
-          <Link
-            to="/train"
-            className={navButtonClass}
-            title="Back to the exercise you're working on"
-          >
-            <span className="sm:hidden">RACK</span>
-            <span className="hidden sm:inline">TRAINING RACK</span>
-          </Link>
-
-          <Link to="/workouts" className={navButtonClass}>
-            <span className="sm:hidden">WORKOUTS</span>
-            <span className="hidden sm:inline">PAST WORKOUTS</span>
-          </Link>
-
-          {/* Only for whoever may add exercises: staff, and members when the gym opens it to them. */}
-          {user?.canAddQuestions && (
-            <Link to="/coach" className={navButtonClass}>
-              <span className="sm:hidden">COACH</span>
-              <span className="hidden sm:inline">COACH'S CORNER</span>
+          <div className="grid w-full auto-cols-fr grid-flow-col gap-2 text-center sm:contents">
+            <Link
+              to="/train"
+              className={navButtonClass}
+              title="Back to the exercise you're working on"
+            >
+              <span className="sm:hidden">RACK</span>
+              <span className="hidden sm:inline">TRAINING RACK</span>
             </Link>
-          )}
 
-          {/* Only for head coaches: managing people. */}
-          {user?.role === "ADMIN" && (
-            <Link to="/front-desk" className={navButtonClass}>
-              <span className="sm:hidden">DESK</span>
-              <span className="hidden sm:inline">FRONT DESK</span>
+            <Link to="/workouts" className={navButtonClass}>
+              <span className="sm:hidden">WORKOUTS</span>
+              <span className="hidden sm:inline">PAST WORKOUTS</span>
             </Link>
-          )}
+
+            {/* Only for whoever may add exercises: staff, and members when the gym opens it to them. */}
+            {user?.canAddQuestions && (
+              <Link to="/coach" className={navButtonClass}>
+                <span className="sm:hidden">COACH</span>
+                <span className="hidden sm:inline">COACH'S CORNER</span>
+              </Link>
+            )}
+
+            {/* Only for head coaches: managing people. */}
+            {user?.role === "ADMIN" && (
+              <Link to="/front-desk" className={navButtonClass}>
+                <span className="sm:hidden">DESK</span>
+                <span className="hidden sm:inline">FRONT DESK</span>
+              </Link>
+            )}
+          </div>
         </div>
       </nav>
     </header>

@@ -145,7 +145,7 @@ export function WorkoutBar() {
 
   return (
     <div className="relative z-20 border-y-2 border-line bg-card/95 backdrop-blur-sm md:sticky md:top-0">
-      <div className="mx-auto flex w-full max-w-[96rem] flex-wrap items-center gap-x-4 gap-y-2 px-6 py-2.5">
+      <div className="mx-auto flex w-full max-w-[96rem] flex-wrap items-center gap-x-4 gap-y-2 px-6 py-2.5 max-sm:px-4">
         {/* The same width on every page, so nothing after it moves. */}
         <span className="min-w-[7.5rem] font-display text-[9px] text-faded">
           {onTrainPage ? "TRAINING" : "NEXT WORKOUT"}
@@ -164,7 +164,7 @@ export function WorkoutBar() {
         </button>
 
         {/* Chips never shrink or truncate: the row wraps if it must, and MAX_CHIPS keeps it short. */}
-        <div className="flex min-w-0 flex-1 basis-full flex-wrap items-center gap-2 xl:basis-0">
+        <div className="flex min-w-0 flex-1 basis-full flex-wrap items-center gap-2 xl:basis-0 max-sm:flex-nowrap max-sm:overflow-x-auto max-sm:pb-1">
           {shown.map((tag) => {
             const isPicked = picked.includes(tag);
             return (
@@ -218,7 +218,7 @@ export function WorkoutBar() {
         {/* Same width either way, so the bar doesn't jump when the workout starts. */}
         {onTrainPage ? (
           <span
-            className="inline-flex min-w-44 items-center justify-center gap-2 border-2 border-transparent px-4 py-2.5 font-display text-[9px] leading-none text-pixel"
+            className="inline-flex min-w-44 items-center justify-center gap-2 border-2 border-transparent max-sm:hidden px-4 py-2.5 font-display text-[9px] leading-none text-pixel"
             title="You're training: the next exercise comes from these muscles"
           >
             <span className="size-1.5 rounded-full bg-pixel" aria-hidden="true" /> TRAINING
@@ -227,7 +227,7 @@ export function WorkoutBar() {
           <Link
             to="/train"
             title={picked.length === 0 ? "Nothing picked: train all the gym's muscles" : undefined}
-            className={`${buttonClass("pixel", "md")} min-w-44`}
+            className={`${buttonClass("pixel", "md")} min-w-44 max-sm:w-full`}
           >
             START TRAINING →
           </Link>
