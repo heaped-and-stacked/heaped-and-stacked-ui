@@ -250,6 +250,8 @@ function question(
     createdAt: created,
     updatedAt: created,
     // Other athletes' votes; mock_coach's own come on top, in the handlers.
+    waitingTags: [],
+    declinedTags: [],
     upVotes: 0,
     downVotes: 0,
   };

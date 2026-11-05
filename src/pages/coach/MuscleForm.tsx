@@ -36,7 +36,7 @@ export function MuscleForm({
   const [description, setDescription] = useState(editing?.description ?? "");
   const [references, setReferences] = useState(editing?.externalReferences.join("\n") ?? "");
   const [contributionPolicy, setContributionPolicy] = useState<ContributionPolicy>(
-    editing?.contributionPolicy ?? "AUTO_ACCEPT",
+    editing?.contributionPolicy ?? "OWNER_APPROVAL",
   );
 
   const onSubmit = (event: FormEvent) => {

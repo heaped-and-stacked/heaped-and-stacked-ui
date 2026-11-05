@@ -18,7 +18,7 @@ export const site = {
   /** Whose law governs the terms. */
   country: "Romania",
   /** When the privacy policy and terms last changed. */
-  lastUpdated: "27 October 2026",
+  lastUpdated: "5 November 2026",
   /** The Buy Me a Coffee page; the footer link stays hidden while this is empty. */
   coffeeUrl: "https://buymeacoffee.com/heapedstacked",
 };

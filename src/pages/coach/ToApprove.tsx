@@ -76,6 +76,7 @@ export function ToApprove() {
                 #{review.conceptTag}
               </span>
               <span>load {review.question.difficultyScore}/10</span>
+              <span>by {review.authorName || "a former member"}</span>
             </div>
 
             <p className="mt-3 text-sm font-bold">{review.question.title}</p>
@@ -112,7 +113,7 @@ export function ToApprove() {
                   onClick={() => approve(review)}
                   title="It fits, and it's checked: accepted and verified"
                 >
-                  APPROVE
+                  ACCEPT & VERIFY
                 </Button>
               )}
               <Button
@@ -121,7 +122,9 @@ export function ToApprove() {
                 onClick={() => decide(review, "ACCEPTED")}
                 title="It fits; check it later"
               >
-                ACCEPT
+                {user && mayVerify(review.question.conceptTags, concepts, user)
+                  ? "ACCEPT, VERIFY LATER"
+                  : "ACCEPT"}
               </Button>
               <Button
                 variant="paper"

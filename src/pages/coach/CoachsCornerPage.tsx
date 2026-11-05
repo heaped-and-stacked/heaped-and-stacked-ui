@@ -50,8 +50,7 @@ const coachTabs = {
 /** In reviewer mode the tabs say what the curating adds. */
 const reviewerAbout: Record<CoachTab, string> = {
   muscles: coachTabs.muscles.about,
-  exercises:
-    "The exercises you look after, newest first: yours, and the gym's for staff. Open one to edit it.",
+  exercises: "The exercises you look after, newest first. Open one to edit it.",
   inbox: "What waits for you: exercises to approve for your muscles, and athletes' feedback.",
 };
 
@@ -76,26 +75,29 @@ export function CoachsCornerPage() {
 }
 
 function CoachsCorner({ user }: { user: CurrentUser }) {
-  const { reviewing } = useReviewer();
+  const { reviewing, canReview } = useReviewer();
   const search = route.useSearch();
-  const tabs: CoachTab[] = reviewing ? ["muscles", "exercises", "inbox"] : ["exercises", "inbox"];
+  const isStaff = curatesAllContent(user.role);
+  // Reviewer mode separates staff's curating from their own training. A member who owns a muscle,
+  // or may add one, has only their own muscles to look after: that's always here.
+  const curating = reviewing || (!isStaff && (user.canAddConcepts || canReview));
+  const tabs: CoachTab[] = curating ? ["muscles", "exercises", "inbox"] : ["exercises", "inbox"];
   const tab: CoachTab =
     search.tab && tabs.includes(search.tab) ? search.tab : reviewing ? "muscles" : "exercises";
   const { new: addingMuscle, muscle } = search;
   // The INBOX's first pages: shared with the tab, for their totals. Approvals only when reviewing.
-  const { data: reviews } = useReviews({ page: 0, size: PAGE_SIZE }, reviewing);
+  const { data: reviews } = useReviews({ page: 0, size: PAGE_SIZE }, curating);
   const { data: reports } = useReports({ asMember: !reviewing, page: 0, size: PAGE_SIZE });
-  const inbox = (reviewing ? (reviews?.totalItems ?? 0) : 0) + (reports?.totalItems ?? 0);
-  const isStaff = curatesAllContent(user.role);
+  const inbox = (curating ? (reviews?.totalItems ?? 0) : 0) + (reports?.totalItems ?? 0);
 
   return (
     <>
       <PageHeading prompt="cd coachs-corner" title="COACH'S CORNER">
-        {reviewing
-          ? isStaff
-            ? "Look after the gym's muscles and their exercises: write, verify, approve, and act on feedback."
-            : "Look after your muscles: what others add to them, and the feedback on them."
-          : "Your exercises: write new ones for the gym's muscles, and read what athletes say about them."}
+        {reviewing && isStaff
+          ? "Look after the gym's muscles and their exercises: write, verify, approve, and act on feedback."
+          : curating
+            ? "Your exercises and muscles: write them, decide what others add, and read what athletes say."
+            : "Your exercises: write new ones, and read what athletes say about them."}
       </PageHeading>
 
       <nav
@@ -121,7 +123,7 @@ function CoachsCorner({ user }: { user: CurrentUser }) {
         ))}
       </nav>
       <p className="mt-4 text-xs font-medium text-faded">
-        // {reviewing ? reviewerAbout[tab] : coachTabs[tab].about}
+        // {curating ? reviewerAbout[tab] : coachTabs[tab].about}
       </p>
 
       <div className="mt-6">
@@ -146,7 +148,7 @@ function CoachsCorner({ user }: { user: CurrentUser }) {
         )}
         {tab === "inbox" && (
           <div className="grid gap-10">
-            {reviewing && <ToApprove />}
+            {curating && <ToApprove />}
             <section>
               <p className="font-display text-[9px] text-ink/70">FEEDBACK</p>
               <div className="mt-2">
@@ -318,7 +320,7 @@ export function KindBadge({ concept }: { concept: Concept }) {
       title={
         concept.houseOwned
           ? "One of the gym's own muscles: part of all muscles in workouts, curated by gym staff"
-          : "A member's muscle in the gym's pool: part of all muscles, curated by its owner and gym staff"
+          : "A member's muscle in the gym's pool: part of all muscles; its owner edits it, gym staff verify its exercises"
       }
     >
       <Badge color="blue">GYM</Badge>

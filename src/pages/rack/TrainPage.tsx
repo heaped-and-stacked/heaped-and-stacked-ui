@@ -117,7 +117,10 @@ export function useTrainToVerify() {
   const navigate = useNavigate();
   const { pickOnly } = useWorkoutMuscles();
   const { data: user } = useCurrentUser();
+  const { setReviewing } = useReviewer();
   return (muscles: string[]) => {
+    // The pool to verify is reviewer mode's: a muscle's owner gets there from this button.
+    setReviewing(true);
     pickOnly(muscles);
     writeSession({
       userId: user?.id ?? null,
@@ -171,7 +174,10 @@ function Workout({ user }: { user: User | null }) {
   const { setReviewing } = useReviewer();
   const next = useNextExercise();
   const chosen = useChosenExercise();
+  const whole = useReviewExercise();
   const [session, setSession] = useState(() => readSession(user?.id ?? null));
+  // A new sample set for the same exercise: the rack keeps what it was given, so it starts again.
+  const [resultVersion, setResultVersion] = useState(0);
 
   const update = (change: Partial<WorkoutSession>) =>
     setSession((previous) => {
@@ -208,6 +214,7 @@ function Workout({ user }: { user: User | null }) {
         onSuccess: (exercise) => update({ current: exercise, pick: muscles, pickPool: pool }),
         onError: (error) => {
           if (error instanceof ApiError && error.status === 404) {
+            chosen.reset();
             askNext(
               [],
               "// that exercise isn't in workouts (benched, or not accepted for a muscle yet), so here's another one",
@@ -220,7 +227,8 @@ function Workout({ user }: { user: User | null }) {
 
   // A resumed exercise is shown as the server has it now: its text may have been improved since,
   // also by staff editing it from this workout (✎ FIX). Gone (deleted, or no longer in workouts):
-  // a new round starts. Verified meanwhile (SAVE & VERIFY) while verifying: on to the next.
+  // a new round starts. Verified meanwhile (SAVE & VERIFY) while verifying: on to the next, unless
+  // a set was written: it's still there to rate. A revealed sample set is shown as it is now too.
   const checkResumed = (resumed: LearningQuestion) => {
     const startOver = () =>
       askNext([], "// the exercises changed since this workout started, so here's a new one");
@@ -231,10 +239,23 @@ function Workout({ user }: { user: User | null }) {
         pool: session.pickPool ?? pool,
       },
       {
-        onSuccess: (exercise) =>
-          (session.pickPool ?? pool) === "TO_VERIFY" && exercise.verified
-            ? askNext([...session.seen, exercise.id])
-            : update({ current: exercise }),
+        onSuccess: (exercise) => {
+          const setWritten = session.result?.answerId != null;
+          if ((session.pickPool ?? pool) === "TO_VERIFY" && exercise.verified && !setWritten) {
+            askNext([...session.seen, exercise.id]);
+            return;
+          }
+          update({ current: exercise });
+          const { result } = session;
+          if (result && (reviewing || exercise.canVerify)) {
+            whole.mutate(exercise.id, {
+              onSuccess: ({ sampleSolution, source }) => {
+                update({ result: { ...result, sampleSolution, source } });
+                setResultVersion((version) => version + 1);
+              },
+            });
+          }
+        },
         onError: (error) => {
           if (error instanceof ApiError && error.status === 404) {
             chosen.reset();
@@ -351,7 +372,7 @@ function Workout({ user }: { user: User | null }) {
 
         {current && (
           <WorkoutRack
-            key={current.id}
+            key={`${current.id}-${resultVersion}`}
             question={current}
             signedIn={user !== null}
             canEdit={reviewing && user !== null && curatesAllContent(user.role)}
@@ -513,7 +534,7 @@ function WorkoutRack({
         initialAnswer={initialAnswer}
         initialResult={initialResult}
         onDraftChange={onDraftChange}
-        submitLabel={signedIn ? undefined : "SIGN IN & SUBMIT"}
+        submitLabel={signedIn ? undefined : "SIGN IN TO SUBMIT"}
         feedback={signedIn}
         canEdit={canEdit}
         onSubmit={async (answer) => {

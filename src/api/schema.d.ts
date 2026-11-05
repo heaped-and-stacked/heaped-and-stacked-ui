@@ -557,6 +557,8 @@ export interface components {
       status?: "SUBMITTED" | "RETIRED";
       source?: string;
       conceptTags?: string[];
+      waitingTags?: string[];
+      declinedTags?: string[];
       verified?: boolean;
       /** Format: int64 */
       createdBy?: number;
@@ -721,6 +723,7 @@ export interface components {
     ReviewResponse: {
       conceptTag?: string;
       question?: components["schemas"]["QuestionResponse"];
+      authorName?: string;
     };
     ReportPageResponse: {
       items?: components["schemas"]["ReportResponse"][];
@@ -2482,6 +2485,7 @@ export interface operations {
       query?: {
         concept?: string;
         search?: string;
+        verified?: boolean;
         asMember?: boolean;
         page?: number;
         size?: number;

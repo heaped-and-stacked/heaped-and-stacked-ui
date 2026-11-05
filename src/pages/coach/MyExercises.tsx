@@ -16,8 +16,8 @@ import { useRetry } from "../rack/TrainPage";
 
 /**
  * The exercises the user coaches, newest first, a page at a time: their own, and for staff every
- * one in the gym's pool. Filters by muscle (any of an exercise's, not only its main one) and by
- * part of the title. Each exercise shows its muscles (✓ where it's verified for one), athletes'
+ * one in the gym's pool. Filters by muscle (any of an exercise's, not only its main one), by
+ * part of the title, and by whether it's verified. Each exercise shows its muscles (✓ where it's verified for one), athletes'
  * votes once there are any, TRY IT and EDIT. Benching and deleting are on the exercise's page.
  */
 export function MyExercises({
@@ -29,6 +29,7 @@ export function MyExercises({
   muscle?: string;
 }) {
   const [muscle, setMuscle] = useState(startMuscle ?? "");
+  const [verified, setVerified] = useState("");
   const [searchInput, setSearchInput] = useState("");
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(0);
@@ -42,13 +43,14 @@ export function MyExercises({
   } = useCuratedQuestions({
     concept: muscle || undefined,
     search: search || undefined,
+    verified: verified === "" ? undefined : verified === "yes",
     // Staff outside reviewer mode see what a member sees: their own.
     asMember: !isStaff,
     page,
     size: PAGE_SIZE,
   });
   const questions = result?.items;
-  const filtered = muscle !== "" || search !== "";
+  const filtered = muscle !== "" || search !== "" || verified !== "";
 
   // Searches once typing pauses, from the first page.
   useEffect(() => {
@@ -66,7 +68,9 @@ export function MyExercises({
     }
   }, [result, page]);
 
-  const muscles = [...(concepts ?? [])].sort((a, b) => a.name.localeCompare(b.name));
+  const muscles = [...(concepts ?? [])]
+    .filter((concept) => concept.status !== "RETIRED")
+    .sort((a, b) => a.name.localeCompare(b.name));
 
   return (
     <section>
@@ -95,10 +99,23 @@ export function MyExercises({
             </option>
           ))}
         </select>
+        <select
+          value={verified}
+          onChange={(event) => {
+            setVerified(event.target.value);
+            setPage(0);
+          }}
+          aria-label="Filter by verified"
+          className={`${fieldFrameClass} w-40 px-3 py-2 text-xs text-ink outline-none`}
+        >
+          <option value="">verified or not</option>
+          <option value="yes">✓ verified</option>
+          <option value="no">to verify</option>
+        </select>
         {result && (
           <p className="text-xs font-semibold text-faded">
             <span className="text-ink">{result.totalItems}</span>{" "}
-            {filtered ? "found" : isStaff ? "in the gym" : "coached"}
+            {filtered ? "found" : isStaff ? "in the gym" : "yours"}
             {isStaff && " · benched exercises are out of every workout, answers kept"}
           </p>
         )}
@@ -161,14 +178,16 @@ export function MyExercises({
               </div>
 
               <div className="flex flex-wrap gap-2 self-start">
-                <Button
-                  variant="paper"
-                  size="sm"
-                  onClick={() => retry(question.id, question.conceptTags)}
-                  title="Train it on the rack, as athletes do: a workout on its muscles, this one first"
-                >
-                  TRY IT
-                </Button>
+                {isLive(question) && (
+                  <Button
+                    variant="paper"
+                    size="sm"
+                    onClick={() => retry(question.id, question.conceptTags)}
+                    title="Train it on the rack, as athletes do: a workout on its muscles, this one first"
+                  >
+                    TRY IT
+                  </Button>
+                )}
                 <Link
                   to="/coach/exercises/$questionId"
                   params={{ questionId: String(question.id) }}
@@ -193,13 +212,40 @@ export function MyExercises({
   );
 }
 
-/** An exercise's muscles as chips, then ✓ verified when it's been checked. */
+/** Whether athletes can train it: on at least one muscle that accepted it. */
+export function isLive(question: Question): boolean {
+  return (
+    question.status !== "RETIRED" &&
+    question.conceptTags.some((tag) => !question.waitingTags.includes(tag))
+  );
+}
+
+/** An exercise's muscles as chips, saying which ones it waits on or was declined by, then ✓ verified. */
 export function MuscleChips({ question }: { question: Question }) {
   return (
     <span className="flex flex-wrap items-center gap-1.5">
-      {question.conceptTags.map((tag) => (
-        <span key={tag} className="border border-ink/25 px-1.5 py-0.5 text-faded">
-          #{tag}
+      {question.conceptTags.map((tag) =>
+        question.waitingTags.includes(tag) ? (
+          <span
+            key={tag}
+            className="border border-amber px-1.5 py-0.5 text-amber-ink"
+            title="Waiting for this muscle's coach: athletes don't get it here yet"
+          >
+            #{tag} · waiting
+          </span>
+        ) : (
+          <span key={tag} className="border border-ink/25 px-1.5 py-0.5 text-faded">
+            #{tag}
+          </span>
+        ),
+      )}
+      {question.declinedTags.map((tag) => (
+        <span
+          key={tag}
+          className="border border-danger px-1.5 py-0.5 text-danger"
+          title="This muscle's coach declined it. Pick the muscle again to ask again"
+        >
+          #{tag} · declined
         </span>
       ))}
       {question.verified && (

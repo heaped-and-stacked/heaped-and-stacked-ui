@@ -190,7 +190,7 @@ function reviewsFor(): Review[] {
             concept?.createdBy === user.id || (curatesAllContent(user.role) && !!concept?.featured)
           );
         })
-        .map((conceptTag) => ({ conceptTag, question })),
+        .map((conceptTag) => ({ authorName: "A mock member", conceptTag, question })),
     );
 }
 
@@ -537,6 +537,7 @@ export const handlers = [
     const query = new URL(request.url).searchParams;
     const muscle = query.get("concept")?.trim();
     const search = query.get("search")?.trim().toLowerCase();
+    const verified = query.get("verified");
     const page = Number(query.get("page") ?? 0);
     const size = Number(query.get("size") ?? 20);
     if (size < 1 || size > 100) {
@@ -558,6 +559,7 @@ export const handlers = [
       )
       .filter((question) => !muscle || question.conceptTags.includes(muscle))
       .filter((question) => !search || question.title.toLowerCase().includes(search))
+      .filter((question) => verified === null || String(question.verified) === verified)
       .reverse();
     return HttpResponse.json({
       items: matching.slice(page * size, (page + 1) * size).map(withMyVote),
@@ -588,6 +590,8 @@ export const handlers = [
       updatedBy: user.id,
       createdAt: now(),
       updatedAt: now(),
+      waitingTags: [],
+      declinedTags: [],
       upVotes: 0,
       downVotes: 0,
     };

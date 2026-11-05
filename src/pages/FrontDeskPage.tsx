@@ -228,7 +228,8 @@ function Members({ me }: { me: User }) {
       <div className="flex flex-wrap items-center justify-between gap-4">
         <p className="text-xs font-semibold text-faded">
           <span className="text-ink">{users?.length ?? 0}</span> accounts · gym staff curate every
-          muscle and exercise; only head coaches manage people
+          muscle and exercise; only head coaches manage people. Changing a role signs that person
+          out: they sign in again to get it
         </p>
         <input
           aria-label="Find a member"

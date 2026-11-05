@@ -83,7 +83,7 @@ export function ExerciseRack({
   onFinish,
 }: {
   question: RackQuestion;
-  /** The submit button's text, e.g. "SIGN IN & SUBMIT" for a visitor. */
+  /** The submit button's text, e.g. "SIGN IN TO SUBMIT" for a visitor. */
   submitLabel?: string;
   /** Whether the athlete may vote and leave feedback: signed in. */
   feedback?: boolean;

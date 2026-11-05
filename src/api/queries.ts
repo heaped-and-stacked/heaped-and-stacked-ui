@@ -85,12 +85,25 @@ export function useUpdateProfile() {
   });
 }
 
+/** Reviewer mode and the picked muscles are one person's: the next one on this browser starts clean. */
+function forgetPersonalChoices() {
+  try {
+    localStorage.removeItem("hs.reviewer");
+    localStorage.removeItem("hs.workout.muscles");
+  } catch {
+    // No storage: nothing was kept.
+  }
+}
+
 export function useSignOut() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: signOut,
     // reset (not clear): components already on screen, like the top bar, must re-check too.
-    onSuccess: () => queryClient.resetQueries(),
+    onSuccess: () => {
+      forgetPersonalChoices();
+      return queryClient.resetQueries();
+    },
   });
 }
 
@@ -99,7 +112,10 @@ export function useDeleteAccount() {
   return useMutation({
     mutationFn: () => call(api.DELETE("/users/me")),
     // reset (not clear): components already on screen, like the top bar, must re-check too.
-    onSuccess: () => queryClient.resetQueries(),
+    onSuccess: () => {
+      forgetPersonalChoices();
+      return queryClient.resetQueries();
+    },
   });
 }
 
@@ -289,6 +305,8 @@ export function useQuestion(id: number | undefined) {
 export type QuestionFilter = {
   concept?: string;
   search?: string;
+  /** Only the verified ones, or only the ones still to verify; left out: every one. */
+  verified?: boolean;
   /** Staff outside reviewer mode: only their own, as a member sees it. */
   asMember?: boolean;
   page: number;

@@ -120,7 +120,7 @@ export function mayVerify(
   user: { id: number; role: UserRole },
 ): boolean {
   const onIt = concepts.filter((concept) => conceptTags.includes(concept.tag));
-  return onIt.some((concept) => concept.featured)
+  return onIt.some((concept) => concept.featured || concept.houseOwned)
     ? curatesAllContent(user.role)
     : onIt.some((concept) => concept.createdBy === user.id);
 }

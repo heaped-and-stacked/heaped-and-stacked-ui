@@ -78,8 +78,10 @@ export function AboutPage() {
       </p>
       <h2>WHO WRITES THE EXERCISES</h2>
       <p>
-        The gym's staff write and check the exercises, and members can add their own to the gym's
-        muscles in Coach's Corner: staff check each one before it goes live. Your votes and notes
+        The gym's staff write and check the exercises. Members can add their own in Coach's Corner:
+        on the gym's muscles, staff say yes before one goes live. Members can also open muscles of
+        their own, in the community, and look after them themselves; staff step in when something
+        breaks the house rules. Exercises marked ✓ verified have been checked. Your votes and notes
         tell us which ones to fix.
       </p>
     </TextPage>
@@ -250,7 +252,8 @@ export function PrivacyPage() {
         In the Locker Room, <strong>Delete account</strong> removes your name, your picture and the
         link to your GitHub account straight away, and signs you out everywhere. Your answers and
         contributions stay, attached to an account without a name, so exercises other people train
-        with don't vanish. If you want those erased too, email us and we'll do it.
+        with don't vanish, and any muscle you own passes to the gym's staff. If you want those
+        erased too, email us and we'll do it.
       </p>
 
       <h2>YOUR RIGHTS</h2>

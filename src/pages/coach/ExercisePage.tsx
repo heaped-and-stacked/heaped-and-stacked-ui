@@ -11,6 +11,7 @@ import { RequireSignIn } from "@/components/RequireSignIn";
 import { ReviewerModeNeeded, useReviewer } from "@/components/ReviewerMode";
 import { Badge, Button, buttonClass, Card, ErrorMessage, Loading, Prompt } from "@/components/ui";
 import { ExerciseForm } from "./ExerciseForm";
+import { isLive, MuscleChips } from "./MyExercises";
 import { useRetry } from "../rack/TrainPage";
 import { ReportCard } from "./Reports";
 
@@ -65,6 +66,9 @@ function ExerciseScreen({ user }: { user: CurrentUser }) {
             <li>▸ A sample set a senior would give: the point first, then why.</li>
             <li>▸ Code only where it carries the question.</li>
             <li>▸ A source, with its link, when the idea comes from somewhere.</li>
+            <li>
+              ▸ On a muscle someone else coaches, it waits for their yes before athletes get it.
+            </li>
           </ul>
         </Card>
       </Screen>
@@ -164,15 +168,28 @@ function SidePanel({
   return (
     <Card className="text-xs">
       <h2 className="font-display text-[9px] text-ink/70">ON THE RACK</h2>
-      <Button
-        variant="paper"
-        size="sm"
-        className="mt-3 w-full"
-        onClick={() => retry(question.id, question.conceptTags)}
-        title="Train it on the rack, as athletes do: a workout on its muscles, this one first"
-      >
-        TRY IT
-      </Button>
+      <p className="mt-2 text-[11px] font-semibold">
+        <MuscleChips question={question} />
+      </p>
+      {isLive(question) ? (
+        <Button
+          variant="paper"
+          size="sm"
+          className="mt-3 w-full"
+          onClick={() => retry(question.id, question.conceptTags)}
+          title="Train it on the rack, as athletes do: a workout on its muscles, this one first"
+        >
+          TRY IT
+        </Button>
+      ) : (
+        <p className="mt-3 text-[11px] text-faded">
+          {question.status === "RETIRED"
+            ? "// benched: out of every workout"
+            : question.declinedTags.length > 0 && question.conceptTags.length === 0
+              ? "// declined: athletes don't get it. Pick the muscle again, or another one, to ask again"
+              : "// waiting for a coach's yes: athletes don't get it yet"}
+        </p>
+      )}
 
       <h2 className="mt-6 font-display text-[9px] text-ink/70">ATHLETES</h2>
       <p className="mt-2 font-semibold" title="Athletes' votes on this exercise">

@@ -22,7 +22,7 @@ export function LockerRoomPage() {
       {(user) => (
         <>
           <PageHeading prompt="whoami" title="LOCKER ROOM">
-            Your name on the leaderboard, and the door out.
+            Your name, and the door out.
           </PageHeading>
           {/* A short profile form: kept narrow, even on wide screens. */}
           <div className="mt-12 grid max-w-3xl gap-6">
@@ -114,7 +114,7 @@ function ExitCard() {
       <div className="mt-8 border-t-2 border-dashed border-ink/20 pt-6">
         <p className="text-xs font-medium leading-relaxed text-faded">
           Deleting your account removes your name and GitHub link for good. Exercises you wrote stay
-          in the gym.
+          in the gym, and gym staff take over any muscle you own.
         </p>
         {confirmingDelete ? (
           <div className="mt-4 grid gap-2">

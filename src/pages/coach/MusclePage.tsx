@@ -34,13 +34,15 @@ function Muscle({ user }: { user: CurrentUser }) {
   const { data: concepts, isPending, error } = useConcepts();
   const concept = concepts?.find((candidate) => candidate.tag === tag);
   const isStaff = curatesAllContent(user.role);
-  const curates = !!concept && (concept.createdBy === user.id || (isStaff && concept.featured));
+  const curates =
+    !!concept &&
+    (concept.createdBy === user.id || (isStaff && (concept.featured || concept.houseOwned)));
   const { reviewing } = useReviewer();
   const navigate = useNavigate();
 
   if (isPending) return <Loading what="warming up the muscle" />;
   if (error) return <ErrorMessage error={error} />;
-  if (curates && !reviewing) {
+  if (curates && !reviewing && isStaff) {
     return (
       <ReviewerModeNeeded
         text={`#${tag} is one of the muscles you look after.`}
@@ -148,7 +150,8 @@ function MuscleView({
               TRAIN THE {toVerify} TO VERIFY
             </Button>
           ) : (
-            counts && (
+            counts &&
+            counts.questions > 0 && (
               <span className="text-xs font-semibold text-pixel">
                 ✓ every exercise here is verified
               </span>
@@ -201,6 +204,8 @@ function MuscleActions({
   const deleteConcept = useDeleteConcept();
   const busy = updateStatus.isPending || featureConcept.isPending || deleteConcept.isPending;
   const mine = concept.createdBy === user.id;
+  // Its owner left: it's the house account's, and not in the gym's pool.
+  const leftToStaff = concept.houseOwned && !concept.featured;
 
   const confirmDelete = () => {
     if (window.confirm(`Delete the muscle "${concept.name}" for good? This can't be undone.`)) {
@@ -221,7 +226,7 @@ function MuscleActions({
             PUBLISH
           </SmallAction>
         )}
-        {isStaff && concept.status === "ACTIVE" && !concept.houseOwned && (
+        {isStaff && concept.status === "ACTIVE" && !(concept.houseOwned && concept.featured) && (
           <SmallAction
             disabled={busy}
             onClick={() => featureConcept.mutate({ tag: concept.tag, featured: !concept.featured })}
@@ -232,6 +237,24 @@ function MuscleActions({
             }
           >
             {concept.featured ? "UNFEATURE" : "FEATURE"}
+          </SmallAction>
+        )}
+        {leftToStaff && concept.status === "ACTIVE" && (
+          <SmallAction
+            disabled={busy}
+            onClick={() => updateStatus.mutate({ tag: concept.tag, status: "RETIRED" })}
+            title="Out of every workout; its exercises and history are kept"
+          >
+            RETIRE
+          </SmallAction>
+        )}
+        {leftToStaff && concept.status === "RETIRED" && (
+          <SmallAction
+            disabled={busy}
+            onClick={() => updateStatus.mutate({ tag: concept.tag, status: "ACTIVE" })}
+            title="Back on the gym floor"
+          >
+            BRING BACK
           </SmallAction>
         )}
         {mine && concept.status === "ACTIVE" && !concept.featured && (
@@ -265,14 +288,16 @@ function MuscleActions({
       </div>
       <p className="mt-3 max-w-3xl text-[11px] text-faded">
         //{" "}
-        {concept.houseOwned
-          ? "one of the gym's own muscles: part of all muscles in workouts; gym staff curate it, and it always stays in the gym"
-          : concept.featured
-            ? "a member's muscle in the gym's pool: part of all muscles; its owner and gym staff curate it. Unfeature it to give it back to its owner alone, as a community muscle"
-            : "a community muscle: trained only when someone picks it; its owner curates it" +
-              (isStaff
-                ? ". FEATURE takes it into the gym's pool (all muscles), its owner keeping it"
-                : "")}
+        {leftToStaff
+          ? "its owner left, so gym staff look after it: trained only when someone picks it. FEATURE takes it into the gym's pool; RETIRE takes it down"
+          : concept.houseOwned
+            ? "one of the gym's own muscles: part of all muscles in workouts; gym staff curate it, and it always stays in the gym"
+            : concept.featured
+              ? "a member's muscle in the gym's pool: part of all muscles; its owner edits it and decides what joins, as do gym staff, who verify its exercises. Unfeature it to give it back to its owner alone, as a community muscle"
+              : "a community muscle: trained only when someone picks it; its owner curates it" +
+                (isStaff
+                  ? ". FEATURE takes it into the gym's pool (all muscles), its owner keeping it"
+                  : "")}
       </p>
       <ErrorMessage error={updateStatus.error ?? featureConcept.error ?? deleteConcept.error} />
     </div>
