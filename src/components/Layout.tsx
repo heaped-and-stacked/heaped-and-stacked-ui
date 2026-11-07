@@ -30,7 +30,10 @@ export function Layout() {
   );
 }
 
-/** The usual site links (pages/SitePages.tsx), and Buy me a coffee once site.ts has its address. */
+/**
+ * The usual site links (pages/SitePages.tsx); after them the ones that leave the site: the code,
+ * bug reports, and Buy me a coffee once site.ts has its address.
+ */
 const footerLinks = [
   { label: "About", to: "/about" },
   { label: "Privacy", to: "/privacy" },
@@ -60,6 +63,22 @@ function Footer() {
                 {link.label}
               </Link>
             ))}
+            <a
+              href={site.sourceUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:text-ink hover:underline"
+            >
+              Source code
+            </a>
+            <a
+              href={site.issuesUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:text-ink hover:underline"
+            >
+              Report a bug
+            </a>
             {site.coffeeUrl && (
               <a
                 href={site.coffeeUrl}

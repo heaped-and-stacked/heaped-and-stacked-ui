@@ -19,6 +19,8 @@ RUN npm run build
 
 # ---- serve ---------------------------------------------------------------
 FROM nginx:1.31-alpine
+# The base image's system packages, with the security fixes released since it was built.
+RUN apk upgrade --no-cache
 # At startup the image fills ${API_URL} into the nginx configuration (templates/*.template ->
 # conf.d/*), and 40-hs-config.sh writes config.js and index.html from API_URL and SITE_URL.
 COPY nginx.conf.template /etc/nginx/templates/default.conf.template

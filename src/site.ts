@@ -19,6 +19,10 @@ export const site = {
   country: "Romania",
   /** When the privacy policy and terms last changed. */
   lastUpdated: "5 November 2026",
+  /** The code: the GitHub organization, which shows both public repositories. */
+  sourceUrl: "https://github.com/heaped-and-stacked",
+  /** Where bugs are reported. */
+  issuesUrl: "https://github.com/heaped-and-stacked/heaped-and-stacked-ui/issues",
   /** The Buy Me a Coffee page; the footer link stays hidden while this is empty. */
   coffeeUrl: "https://buymeacoffee.com/heapedstacked",
 };

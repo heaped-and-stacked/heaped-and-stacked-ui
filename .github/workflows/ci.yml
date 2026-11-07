@@ -1,6 +1,6 @@
 # Type-checks, checks formatting and builds the UI on each push and pull request.
 #
-# On pushes to master and on version tags (v1.0.0), once the checks pass, the Docker image is
+# On pushes to master and release branches (release/1.0) and on version tags (v1.0.0), once the checks pass, the Docker image is
 # published to GitHub Container Registry as ghcr.io/<owner>/heaped-and-stacked-ui, tagged:
 #   sha-<commit>   every publish: what a deploy points at, and what a rollback goes back to
 #   latest         the newest commit on master
@@ -11,7 +11,7 @@ name: CI
 
 on:
   push:
-    branches: [master]
+    branches: [master, "release/**"]
     tags: ["v*"]
   pull_request:
 
