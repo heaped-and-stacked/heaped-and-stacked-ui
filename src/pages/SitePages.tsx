@@ -84,6 +84,10 @@ export function AboutPage() {
         breaks the house rules. Exercises marked ✓ verified have been checked. Your votes and notes
         tell us which ones to fix.
       </p>
+      <p>
+        Want to help check and improve the gym's exercises? Write to us (<ContactLink />) with your
+        GitHub username and the topics you know well.
+      </p>
     </TextPage>
   );
 }
@@ -202,10 +206,13 @@ export function PrivacyPage() {
 
       <h2>OUTSIDE THE EU</h2>
       <p>
-        Your data is stored in Germany. GitHub, Cloudflare, Google and Neon are US companies, so US
-        authorities may be able to ask them for what they handle for us. Such transfers rely on the
-        EU–US Data Privacy Framework, or where a company isn't part of it, on the EU's standard
-        contractual clauses.
+        Your data is stored in Germany
+        {site.backupProvider
+          ? ", and the off-site copies of our backups in the European Union"
+          : ""}
+        . GitHub, Cloudflare, Google and Neon are US companies, so US authorities may be able to ask
+        them for what they handle for us. Such transfers rely on the EU–US Data Privacy Framework,
+        or where a company isn't part of it, on the EU's standard contractual clauses.
       </p>
 
       <h2>WHY (LEGAL BASES, FOR THE GDPR)</h2>
@@ -385,6 +392,9 @@ export function ContactPage() {
     <TextPage prompt="ping hello" title="CONTACT">
       <p>
         Questions, bugs, ideas or a privacy request: <Mail />.
+      </p>
+      <p>
+        Want to help curate the gym? Tell us your GitHub username and which topics you know well.
       </p>
       <p>
         Something wrong with an exercise? The quickest way is "▼ not great", on the exercise itself.

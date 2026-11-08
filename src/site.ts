@@ -12,13 +12,13 @@ export const site = {
    * "Cloudflare (R2)". Servers and database are fixed in the policy: Contabo and Neon. Empty: no
    * off-site copy yet, and the policy doesn't mention one.
    */
-  backupProvider: "",
+  backupProvider: "Cloudflare (R2, in the European Union)",
   /** Who keeps the mail sent to contactEmail (Cloudflare Email Routing forwards it there). */
   emailProvider: "Google (Gmail)",
   /** Whose law governs the terms. */
   country: "Romania",
   /** When the privacy policy and terms last changed. */
-  lastUpdated: "5 November 2026",
+  lastUpdated: "8 November 2026",
   /** The code: the GitHub organization, which shows both public repositories. */
   sourceUrl: "https://github.com/heaped-and-stacked",
   /** Where bugs are reported. */
