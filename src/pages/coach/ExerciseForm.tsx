@@ -151,15 +151,15 @@ export function ExerciseForm({
         <Field
           label="SOURCE"
           optional
-          hint="who came up with it: a book, a talk, a page (with its link); at most 200 characters"
+          hint="who came up with it: books, talks, pages (with their links); at most 1000 characters"
         >
-          {/* Two lines tall, so a title plus a long link fits; it's still one line of text. */}
+          {/* Three lines tall, so two titles with long links fit; it's still one line of text. */}
           <textarea
-            rows={2}
-            maxLength={200}
+            rows={3}
+            maxLength={1000}
             value={source}
             onChange={(event) => setSource(event.target.value.replace(/\s*\n\s*/g, " "))}
-            className={`${inputClass} h-16 resize-none leading-relaxed`}
+            className={`${inputClass} h-24 resize-none leading-relaxed`}
             placeholder="Effective Java, item 28"
           />
         </Field>
